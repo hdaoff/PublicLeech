@@ -16,7 +16,7 @@ class DataBaseHandle:
     def __init__(self,dburl=None):
         """Load the DB URL if available
         """
-        DB_HOST_URL = get_config("DATABASE_URL","False")
+        DB_HOST_URL = get_config("DATABASE_URL",False)
         self._dburl = DB_HOST_URL if dburl == None else dburl
         if isinstance(self._dburl,bool):
             self._block = True
