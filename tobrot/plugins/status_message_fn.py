@@ -193,10 +193,20 @@ async def save_rclone_conf_f(client, message):
 
 async def restart_bot(client, message):
     #a cheap way to restart bot lol ;)))
-    LOGGER.error("RESTART COMMAND HERE")
-    await message.reply_text("Restarting see you in a minute.")
-    dbh.setVar("was_restarted","yes")
-    await client.stop()
+    if await AdminCheck(client, message.chat.id, message.from_user.id):
+        LOGGER.error("RESTART COMMAND HERE")
+        await message.reply_text("Restarting see you in a minute.")
+        dbh.setVar("was_restarted","yes")
+        cmd = "pkill -9 python3"
+        
+        process = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+    else:
+        await message.reply_text("Not an admin")
 
 async def alive_bot(client, message):
     #a cheap way to restart bot lol ;)))
