@@ -41,6 +41,10 @@ class DataBaseHandle:
             cur.execute("DROP TABLE active_downs")
         except:
             pass
+        self._conn.commit()
+        cur.close()
+        #errored due to heroku postgres
+        cur = self._conn.cursor()
         cur.execute(download_table)
         cur.close()
         self._conn.commit()
