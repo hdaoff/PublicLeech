@@ -18,7 +18,18 @@ import os
 
 
 def get_config(name: str, d_v=None, should_prompt=False):
-    val = os.environ.get(name, d_v)
+    #cant set database url from chat ;)
+    if name != "DATABASE_URL":
+        from tobrot.helper_funcs.postgres_drive import DataBaseHandle
+        dbh = DataBaseHandle()
+        rep = dbh.getVal(name)
+    else:
+        rep = False
+    
+    if not isinstance(rep,bool):
+        val = rep[1]
+    else:
+        val = os.environ.get(name, d_v)
     if not val and should_prompt:
         try:
             val = input(f"enter {name}'s value: ")

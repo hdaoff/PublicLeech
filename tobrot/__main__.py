@@ -32,7 +32,9 @@ from tobrot.plugins.status_message_fn import (
     cancel_message_f,
     exec_message_f,
     upload_document_f,
-    save_rclone_conf_f
+    save_rclone_conf_f,
+    restart_bot,
+    alive_bot
 )
 from tobrot.plugins.call_back_button_handler import button
 from tobrot.plugins.custom_thumbnail import (
@@ -41,9 +43,10 @@ from tobrot.plugins.custom_thumbnail import (
 )
 from tobrot.helper_funcs.custom_filters import message_fliter
 from tobrot.dinmamoc import Commandi
+from tobrot.helper_funcs.postgres_drive import DataBaseHandle
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__" :     
     # create download directory, if not exist
     if not os.path.isdir(DOWNLOAD_LOCATION):
         os.makedirs(DOWNLOAD_LOCATION)
@@ -168,6 +171,18 @@ if __name__ == "__main__" :
         filters=Filters.command([Commandi.GET_RCLONE_CONF_URI]) & Filters.chat(chats=AUTH_CHANNEL)
     )
     app.add_handler(save_rclone_conf_handler)
+
+    restart_bot_handler = MessageHandler(
+        restart_bot,
+        filters=Filters.command([Commandi.RESTART_CMD]) & Filters.chat(chats=AUTH_CHANNEL)
+    )
+    app.add_handler(restart_bot_handler)
+
+    alive_bot_handler = MessageHandler(
+        alive_bot,
+        filters=Filters.command([Commandi.ALIVE_CMD]) & Filters.chat(chats=AUTH_CHANNEL)
+    )
+    app.add_handler(alive_bot_handler)
 
     # run the APPlication
     app.run()

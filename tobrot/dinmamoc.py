@@ -50,3 +50,11 @@ class Commandi:
         "COMMANDI_GET_RCLONE_CONF_URI",
         "getrcloneconfuri"
     )
+    RESTART_CMD = os.environ.get(
+        "RESTART_CMD",
+        "restart"
+    )
+    ALIVE_CMD = os.environ.get(
+        "ALIVE_CMD",
+        "alive"
+    )

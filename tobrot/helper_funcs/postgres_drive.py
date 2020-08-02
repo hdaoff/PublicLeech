@@ -9,20 +9,22 @@ logging.basicConfig(
 )
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 LOGGER = logging.getLogger(__name__)
-from tobrot import (
-    DB_HOST_URL
-)
+from tobrot.get_cfg import get_config 
 import psycopg2,traceback
 
 class DataBaseHandle:
     def __init__(self,dburl=None):
         """Load the DB URL if available
         """
+        DB_HOST_URL = get_config("DATABASE_URL",False)
         self._dburl = DB_HOST_URL if dburl == None else dburl
         if isinstance(self._dburl,bool):
             self._block = True
         else:
             self._block = False
+        
+        if self._block:
+            return
         
         self._conn = psycopg2.connect(self._dburl)
         
@@ -34,12 +36,20 @@ class DataBaseHandle:
                 status VARCHAR(10) DEFAULT '' NOT NULL
             )
         """
+        conf_var = """
+            CREATE TABLE IF NOT EXISTS conf_vars(
+                id SERIAL PRIMARY KEY NOT NULL,
+                varname VARCHAR(50) NOT NULL UNIQUE,
+                val VARCHAR(1000) NOT NULL
+            )
+        """
         cur = self._conn.cursor()
         try:
             cur.execute("DROP TABLE active_downs")
         except:
             pass
         cur.execute(download_table)
+        cur.execute(conf_var)
         cur.close()
         self._conn.commit()
 
@@ -130,8 +140,64 @@ class DataBaseHandle:
             LOGGER.error("Error occured while deregistering a Upload\n{}".format(traceback.format_exc()))
             return False
         return False
-    
+
+    def getVal(self,var :str):
+        """Mark download for cancel
+        """
+        if self._block:
+            return False
+
+        sql = "SELECT * FROM conf_vars WHERE varname=%s"
+        try:
+            cur = self._conn.cursor()
+
+            cur.execute(sql,(var,))
+            data = cur.fetchall()
+            if len(data) > 0:
+                return [True,data[0][2]]
+            else:
+                return False
+
+        except Exception as e:
+            LOGGER.error("Error occured while Seeting a var\n{}".format(traceback.format_exc()))
+            return False
+        return False
+
+    def setVar(self,var :str,val):
+        """Mark download for cancel
+        """
+        if self._block:
+            return False
+
+        sql = "SELECT * FROM conf_vars WHERE varname=%s"
+        try:
+            cur = self._conn.cursor()
+
+            cur.execute(sql,(var,))
+            data = cur.fetchall()
+            
+            if len(data) > 0:
+                sql = "UPDATE conf_vars SET val=%s WHERE varname=%s"
+                cur.execute(sql,(val,var))
+                cur.close()
+                self._conn.commit()
+                return True
+            else:
+                sql = "INSERT INTO conf_vars(varname,val) VALUES(%s,%s)"
+                cur.execute(sql,(var,var))
+                cur.close()
+                self._conn.commit()
+                return True
+
+            
+        except Exception as e:
+            LOGGER.error("Error occured while deregistering a Upload\n{}".format(traceback.format_exc()))
+            return False
+        return False
+
     def __del__(self):
         """Close connection so that the threshold is not exceeded
         """
+        if self._block:
+            return
         self._conn.close()
