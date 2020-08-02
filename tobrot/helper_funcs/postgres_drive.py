@@ -188,7 +188,7 @@ class DataBaseHandle:
                 return True
             else:
                 sql = "INSERT INTO conf_vars(varname,val) VALUES(%s,%s)"
-                cur.execute(sql,(var,var))
+                cur.execute(sql,(var,val))
                 cur.close()
                 self._conn.commit()
                 return True
