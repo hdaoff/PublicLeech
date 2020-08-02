@@ -16,7 +16,7 @@ class DataBaseHandle:
     def __init__(self,dburl=None):
         """Load the DB URL if available
         """
-        DB_HOST_URL = get_config("DATABASE_URL",False)
+        DB_HOST_URL = get_config("DATABASE_URL","False")
         self._dburl = DB_HOST_URL if dburl == None else dburl
         if isinstance(self._dburl,bool):
             self._block = True
@@ -48,6 +48,10 @@ class DataBaseHandle:
             cur.execute("DROP TABLE active_downs")
         except:
             pass
+        self._conn.commit()
+        cur.close()
+        #errored due to heroku postgres
+        cur = self._conn.cursor()
         cur.execute(download_table)
         cur.execute(conf_var)
         cur.close()
