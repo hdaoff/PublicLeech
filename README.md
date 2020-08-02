@@ -1,3 +1,7 @@
+#Easy Rclone
+check this to find how to used it
+https://telegra.ph/Self-Rclone-Conf-08-02
+
 # Torrent / YouTube Leecher 🔥🤖
 
 A Torrent, youtube-dl Leecher, and Uploader!
